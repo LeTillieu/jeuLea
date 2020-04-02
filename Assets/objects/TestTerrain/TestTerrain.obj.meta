@@ -1,0 +1,124 @@
+fileFormatVersion: 2
+guid: 472da0f02ab520249a63080274e8fee2
+ModelImporter:
+  serializedVersion: 23
+  fileIDToRecycleName:
+    100000: Hilly_Terrain_Grass_Floor
+    100002: Hilly_Terrain_Hill_Corner_Outer_4x4
+    100004: Hilly_Terrain_Hill_Side_Sharp
+    100006: Hilly_Terrain_Hill_Transition_Gentle_Sharp_Centered
+    100008: Hilly_Terrain_Hill_Transition_Gentle_Sharp_Flush_Base
+    100010: Hilly_Terrain_Hill_Transition_Gentle_Sharp_Flush_Crest
+    100012: //RootNode
+    400000: Hilly_Terrain_Grass_Floor
+    400002: Hilly_Terrain_Hill_Corner_Outer_4x4
+    400004: Hilly_Terrain_Hill_Side_Sharp
+    400006: Hilly_Terrain_Hill_Transition_Gentle_Sharp_Centered
+    400008: Hilly_Terrain_Hill_Transition_Gentle_Sharp_Flush_Base
+    400010: Hilly_Terrain_Hill_Transition_Gentle_Sharp_Flush_Crest
+    400012: //RootNode
+    2100000: Grass
+    2300000: Hilly_Terrain_Grass_Floor
+    2300002: Hilly_Terrain_Hill_Corner_Outer_4x4
+    2300004: Hilly_Terrain_Hill_Side_Sharp
+    2300006: Hilly_Terrain_Hill_Transition_Gentle_Sharp_Centered
+    2300008: Hilly_Terrain_Hill_Transition_Gentle_Sharp_Flush_Base
+    2300010: Hilly_Terrain_Hill_Transition_Gentle_Sharp_Flush_Crest
+    3300000: Hilly_Terrain_Grass_Floor
+    3300002: Hilly_Terrain_Hill_Corner_Outer_4x4
+    3300004: Hilly_Terrain_Hill_Side_Sharp
+    3300006: Hilly_Terrain_Hill_Transition_Gentle_Sharp_Centered
+    3300008: Hilly_Terrain_Hill_Transition_Gentle_Sharp_Flush_Base
+    3300010: Hilly_Terrain_Hill_Transition_Gentle_Sharp_Flush_Crest
+    4300000: Hilly_Terrain_Grass_Floor
+    4300002: Hilly_Terrain_Hill_Corner_Outer_4x4
+    4300004: Hilly_Terrain_Hill_Side_Sharp
+    4300006: Hilly_Terrain_Hill_Transition_Gentle_Sharp_Centered
+    4300008: Hilly_Terrain_Hill_Transition_Gentle_Sharp_Flush_Base
+    4300010: Hilly_Terrain_Hill_Transition_Gentle_Sharp_Flush_Crest
+  externalObjects: {}
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+    materialLocation: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    importAnimatedCustomProperties: 0
+    importConstraints: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    extraUserProperties: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    useSRGBMaterialColor: 1
+    importVisibility: 1
+    importBlendShapes: 1
+    importCameras: 1
+    importLights: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    preserveHierarchy: 0
+    indexFormat: 0
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+    previousCalculatedGlobalScale: 1
+    hasPreviousCalculatedGlobalScale: 0
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+    normalCalculationMode: 4
+    legacyComputeAllNormalsFromSmoothingGroupsWhenMeshHasBlendShapes: 0
+    blendShapeNormalImportMode: 1
+    normalSmoothingSource: 0
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    serializedVersion: 2
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    rootMotionBoneName: 
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 1
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 0
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
