@@ -7,7 +7,7 @@ public class DayNightCycle : MonoBehaviour
     public Color DayColor;
     public Color NightColor;
     public Color TwilightColor;
-
+    public bool isDay;
     public float intensity;
     public float dayDuration;           //day duration in seconds
     public float time;                  //time of the day in seconds
@@ -19,17 +19,27 @@ public class DayNightCycle : MonoBehaviour
         NightColor = new Color(0,0,0);
         TwilightColor = new Color(210f/255f,85f/255f,0f/255f,255f/255f);
         intensity = 0.5f;
-        dayDuration = 10;
+        dayDuration = 30;
         time = 0f;
     
     }
 
     // Update is called once per frame
     void Update()
-    {Light sun = GameObject.Find("sun").GetComponent<Light>();
-    setLight();
+    {
+        Light sun = GameObject.Find("sun").GetComponent<Light>();
+        setLight();
+
+        //define if it is either the day of the night
+        if(curDayTime > 0.1 && curDayTime<0.85){
+            isDay = true;
+        }else{
+            isDay = false;
+        }
     }   
 
+
+    //set the animations of the sun
     void setLight(){
         Light sun = GameObject.Find("sun").GetComponent<Light>();
         time += Time.deltaTime;
@@ -40,44 +50,44 @@ public class DayNightCycle : MonoBehaviour
             time = 0;
             curDayTime = 0;
         }
+        
+        float nightPercent = 0.02f;             //percentage time of night
+        float twilightDawnPercent = 0.1f;      //percentage time for transition from night to day/day to night
+        float midday = (1-nightPercent-twilightDawnPercent*2)/2+twilightDawnPercent; //the middle of the day
 
-        if(curDayTime >0 && curDayTime < 0.1){ 
-            sun.color = Color.Lerp(NightColor, TwilightColor, curDayTime/0.1f);
-        }else if(curDayTime >0.1 && curDayTime < 0.475){
-            
-            float a = -1;
-            float b = 0.95f;
-            float c = (0.5625f-0.9025f)/4;
-            sun.color = Color.Lerp(TwilightColor, DayColor, 1/0.140625f*(a*curDayTime*curDayTime+b*curDayTime+c));
-        }else if(curDayTime >0.475 && curDayTime < 0.85){
-            
-            float a = -1;
-            float b = 0.95f;
-            float c = (0.5625f-0.9025f)/4;
-            sun.color = Color.Lerp(TwilightColor, DayColor, 1/0.140625f*(a*curDayTime*curDayTime+b*curDayTime+c));
-        }else if(curDayTime >0.85 && curDayTime < 0.95){ 
-            sun.color = Color.Lerp(TwilightColor, NightColor, (curDayTime-0.85f)/0.1f);
+        //setting the sun's color animation according to day time
+        if(curDayTime >0 && curDayTime < twilightDawnPercent){ 
+            sun.color = Color.Lerp(NightColor, TwilightColor, curDayTime/ twilightDawnPercent);
+        }else if(curDayTime > twilightDawnPercent && curDayTime < midday){
+            float a = -1/Mathf.Pow(twilightDawnPercent-midday,2);
+            float b = -2*a*midday;
+            float c = 1+a*Mathf.Pow(midday, 2);
+            sun.color = Color.Lerp(TwilightColor, DayColor, (a*curDayTime*curDayTime+b*curDayTime+c));
+        }else if(curDayTime >midday && curDayTime < 1-twilightDawnPercent-nightPercent){
+            float a = -1/Mathf.Pow(twilightDawnPercent-midday,2);
+            float b = -2*a*midday;
+            float c = 1+a*Mathf.Pow(midday, 2);
+            sun.color = Color.Lerp(TwilightColor, DayColor, (a*curDayTime*curDayTime+b*curDayTime+c));
+        }else if(curDayTime >1-twilightDawnPercent-nightPercent && curDayTime < 1-nightPercent){ 
+            sun.color = Color.Lerp(TwilightColor, NightColor, (curDayTime-(1-twilightDawnPercent-nightPercent))/twilightDawnPercent);
         }
 
-        //Debug.Log(curDayTime);
-        if(curDayTime >0 && curDayTime < 0.1){ 
-            sun.transform.rotation = Quaternion.Euler(curDayTime*(90/0.1f)-90,0,0);
-        }else if(curDayTime >0.1 && curDayTime < 0.475){
-            
-            float a = -1;
-            float b = 0.95f;
-            float c = (0.5625f-0.9025f)/4;
+        //setting the sun's rotation animation according to day time
+        if(curDayTime >0 && curDayTime < twilightDawnPercent){ 
+            sun.transform.rotation = Quaternion.Euler(curDayTime*(90/twilightDawnPercent)-90,0,0);
+        }else if(curDayTime > twilightDawnPercent && curDayTime < midday){
+            float a = -1/Mathf.Pow(twilightDawnPercent-midday,2);
+            float b = -2*a*midday;
+            float c = 1+a*Mathf.Pow(midday, 2);
+            sun.transform.rotation = Quaternion.Euler(90*(a*curDayTime*curDayTime+b*curDayTime+c),0,0);
+        }else if(curDayTime >midday && curDayTime < 1-twilightDawnPercent-nightPercent){
+            float a = -1/Mathf.Pow(twilightDawnPercent-midday,2);
+            float b = -2*a*midday;
+            float c = 1+a*Mathf.Pow(midday, 2);
             //Debug.Log("rotate: "+a*curDayTime*curDayTime+b*curDayTime+c);
-            sun.transform.rotation = Quaternion.Euler(640*(a*curDayTime*curDayTime+b*curDayTime+c),0,0);
-        }else if(curDayTime >0.475 && curDayTime < 0.85){
-            
-            float a = -1;
-            float b = 0.95f;
-            float c = (0.5625f-0.9025f)/4;
-            //Debug.Log("rotate: "+a*curDayTime*curDayTime+b*curDayTime+c);
-            sun.transform.rotation = Quaternion.Euler(-640*(a*curDayTime*curDayTime+b*curDayTime+c)+180,0,0);
-        }else if(curDayTime >0.85 && curDayTime < 0.95){ 
-            sun.transform.rotation = Quaternion.Euler(curDayTime*(90/0.1f)-590,0,0);
+            sun.transform.rotation = Quaternion.Euler(-90*(a*curDayTime*curDayTime+b*curDayTime+c)+180,0,0);
+        }else if(curDayTime >1-twilightDawnPercent-nightPercent && curDayTime < 1-nightPercent){ 
+            sun.transform.rotation = Quaternion.Euler(curDayTime*(90/twilightDawnPercent)+180-90/twilightDawnPercent*(1-twilightDawnPercent-nightPercent),0,0);
         }
 
     }

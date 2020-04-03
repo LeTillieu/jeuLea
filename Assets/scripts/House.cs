@@ -21,7 +21,8 @@ public class House : MonoBehaviour
     {
         this.updateSmoke();//to Remove
     }
-    //function to call on update of the amount of inhabitants in the house 
+    
+    //activate smoke if there are inhabitant in the house
     void updateSmoke(){
         if(nbInhabitants > 0){
             smoke.SetActive(true);

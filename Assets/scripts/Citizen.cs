@@ -10,28 +10,44 @@ public class Citizen : MonoBehaviour
     public float happiness;
     public float tiredness;
     public string job;
-    public bool isWorking;
-    public bool objectToWorkFound;
-
-    private GameObject[] objectsToWork;
+    public bool doingActivity;
+    public bool objectForActivityFound;
+    private GameObject[] objectsForActivity;
     
-    private float closestObjectToWorkDist;
-    public GameObject closestObjectToWork;
+    private float closestObjectForActivityDist;
+    private GameObject closestObjectForActivity;
+    public bool prevDay;
 
-    private Vector3 prevCoord = new Vector3();
-
+    public List<string> objectsTag;
     // Start is called before the first frame update
-    void Start()
+    void OnEnable()
     {
-    //citizen shown data
+
+        objectsTag.Add("tree");
+        objectsTag.Add("resting");
+        //citizen shown data
         happiness = 0.5f;
         tiredness = 0.5f;
-        isWorking = false;
+        doingActivity = false;
+        objectsForActivity = new GameObject[0];
+        if(objectsForActivity.Length != 0){
+            List<GameObject> tmpList = new List<GameObject>(objectsForActivity);
+            tmpList.Clear();
+            objectsForActivity = tmpList.ToArray();
 
-        closestObjectToWorkDist = float.MaxValue;
-        objectToWorkFound = false;
-        prevCoord = gameObject.transform.position;
-        
+        }
+
+        doingActivity = false;
+        objectForActivityFound = false;
+        closestObjectForActivityDist = float.MaxValue;
+        closestObjectForActivity = null;  
+        prevDay = GameObject.Find("sun").GetComponent<DayNightCycle>().isDay;
+
+        foreach(string curTag in objectsTag){
+            foreach(GameObject curObj in GameObject.FindGameObjectsWithTag(curTag)){
+                curObj.GetComponent<resourceManager>().isOccupied = false;
+            }
+        }
     }
 
 
@@ -39,58 +55,35 @@ public class Citizen : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        Animator animator = gameObject.GetComponent<Animator>();
-        NavMeshAgent agent = gameObject.GetComponent<NavMeshAgent>();
-        NavMeshPath path = new NavMeshPath();
-        if(!objectToWorkFound){
-            if(job == "lumberjack"){
-                //isWorking = true; // TODO: to move
-                objectsToWork = GameObject.FindGameObjectsWithTag("tree");
-                closestObjectToWorkDist = float.MaxValue;
+        bool isDay = GameObject.Find("sun").GetComponent<DayNightCycle>().isDay;
+        //defining what to do according to the hour
+        if(isDay){
+            if(!objectForActivityFound){
+                gameObject.GetComponent<NavMeshAgent>().ResetPath();
+                goToWork(job);
             }
-            int clostestId = -1;
-            while(closestObjectToWorkDist == float.MaxValue && objectsToWork.Length != 0){
-                foreach(GameObject curObj in objectsToWork){
-                    float curDist = distBetweenPos(curObj.GetComponent<Collider>().bounds.center, gameObject.GetComponent<Collider>().bounds.center);
-                    if(curDist < closestObjectToWorkDist && curObj.activeInHierarchy){
-                        clostestId++;
-                        closestObjectToWorkDist = curDist;
-                        closestObjectToWork = curObj;
-                    }
-                }
-
-                if(closestObjectToWork.GetComponent<resourceManager>().isOccupied){
-                    closestObjectToWorkDist = float.MaxValue;
-                    List<GameObject> tmpList = new List<GameObject>(objectsToWork);
-                    tmpList.Remove(closestObjectToWork);
-                    objectsToWork = tmpList.ToArray();
-                }else{
-                    closestObjectToWork.GetComponent<resourceManager>().isOccupied = true;
-                    getPath(closestObjectToWork);
-                    objectToWorkFound = true;
-                }
-            }           
-
-        }
-
-        if(closestObjectToWorkDist != float.MaxValue && !isWorking){
-            gameObject.transform.rotation = Quaternion.LookRotation(Vector3.RotateTowards(gameObject.transform.forward, closestObjectToWork.transform.position - gameObject.transform.position, 2*Time.deltaTime, 0.0f));
-            if(!gameObject.GetComponent<NavMeshAgent>().pathPending && gameObject.GetComponent<NavMeshAgent>().pathStatus == NavMeshPathStatus.PathComplete && gameObject.GetComponent<NavMeshAgent>().remainingDistance == 0){
-                animator.SetBool("isWorking", true);
-                isWorking = true;
-                animator.SetFloat("speed", 0);
-            }else{
-                animator.SetFloat("speed", agent.speed);
-                animator.SetBool("isWorking", false);
-            }
+        } else{
+           if(!objectForActivityFound){
+                goToWork("rest");
+            } 
         }
         
+
+
+        resetAnimation(isDay);
         
+        //reset behaviour when day time changes
+        if(prevDay != isDay){
+            gameObject.GetComponent<Citizen>().OnEnable();
+        }
+        prevDay = isDay;
         
-        
-             
     }
 
+
+
+
+    //compute the distance between 2 points in the 3d space
     float distBetweenPos(Vector3 obj1, Vector3 obj2){
         float posX = Mathf.Pow(obj1.x-obj2.x, 2);
         float posY = Mathf.Pow(obj1.y-obj2.y, 2);
@@ -98,25 +91,88 @@ public class Citizen : MonoBehaviour
         return Mathf.Sqrt(posX+posY+posZ);
     }
 
+
+    //try to find an object to work with 
+    private void goToWork(string activity){
+        List<GameObject> objectsForActivityList = new List<GameObject>();
+        //get all objects on the map according to the activity/job.
+        //TODO To update when adding a job/activity
+        if(activity == "lumberjack"){
+            objectsForActivity = GameObject.FindGameObjectsWithTag("tree");
+            objectsForActivityList = new List<GameObject>(objectsForActivity);
+        }else if(activity == "rest"){
+            objectsForActivity = GameObject.FindGameObjectsWithTag("resting");
+            objectsForActivityList = new List<GameObject>(objectsForActivity);
+        }
+
+        while(objectsForActivityList.Count != 0 && !objectForActivityFound){
+            //find the closest object from the character
+            closestObjectForActivityDist = float.MaxValue;
+            foreach(GameObject curObj in objectsForActivityList){
+                float curDist = distBetweenPos(curObj.GetComponent<Collider>().bounds.center, gameObject.GetComponent<Collider>().bounds.center);
+                if(curDist < closestObjectForActivityDist){
+                    closestObjectForActivityDist = curDist;
+                    closestObjectForActivity = curObj;
+                }
+            }
+
+            //check if object is already used bysomeone, and if not move to the object
+            if(closestObjectForActivity.GetComponent<resourceManager>().isOccupied){
+                objectsForActivityList.Remove(closestObjectForActivity);
+            }else{
+                closestObjectForActivity.GetComponent<resourceManager>().isOccupied = true;
+                objectForActivityFound = true;
+                getPath(closestObjectForActivity);
+            }
+        }
+        
+
+    }
+    
+    //moving to an object
     void getPath(GameObject dest){
         Vector3 destCoord = new Vector3();
         NavMeshPath path = new NavMeshPath();
 
+        //define a random destination point arround the destination object
         float corrector;
         corrector  = 0.5f;
-        float min = closestObjectToWork.GetComponent<Collider>().bounds.center.x - closestObjectToWork.GetComponent<Collider>().bounds.size.x/2-corrector;
-        float max = closestObjectToWork.GetComponent<Collider>().bounds.center.x + closestObjectToWork.GetComponent<Collider>().bounds.size.x/2+corrector;
+        float min = dest.GetComponent<Collider>().bounds.center.x - dest.GetComponent<Collider>().bounds.size.x/2-corrector;
+        float max = dest.GetComponent<Collider>().bounds.center.x + dest.GetComponent<Collider>().bounds.size.x/2+corrector;
         destCoord.x = Random.Range(min, max);
         destCoord.y= gameObject.transform.position.y;
-        destCoord.z = Mathf.Sqrt(Mathf.Pow(closestObjectToWork.GetComponent<Collider>().bounds.size.x/2+corrector,2)-Mathf.Pow(destCoord.x-closestObjectToWork.GetComponent<Collider>().bounds.center.x,2))+closestObjectToWork.GetComponent<Collider>().bounds.center.z;
+        destCoord.z = Mathf.Sqrt(Mathf.Pow(dest.GetComponent<Collider>().bounds.size.x/2+corrector,2)-Mathf.Pow(destCoord.x-dest.GetComponent<Collider>().bounds.center.x,2))+dest.GetComponent<Collider>().bounds.center.z;
 
+        //compute the path to go to the point calculated before
         NavMesh.CalculatePath(gameObject.transform.position,destCoord,NavMesh.AllAreas, path);
         for (int i = 0; i < path.corners.Length - 1; i++){
             Debug.DrawLine(path.corners[i], path.corners[i + 1], Color.red);
         }
-        gameObject.GetComponent<NavMeshAgent>().destination = destCoord;
+        //move to the point
+        gameObject.GetComponent<NavMeshAgent>().SetDestination(destCoord);
     }
 
-   
 
+    //setting the right animation according to the current action
+    private void resetAnimation(bool isDay){
+        Animator animator = gameObject.GetComponent<Animator>();
+        NavMeshAgent agent = gameObject.GetComponent<NavMeshAgent>();
+        if(!objectForActivityFound){
+            //idle when no object has been found to work with
+            animator.SetBool("isWorking", false);
+            animator.SetFloat("speed", 0);
+        }else if(!doingActivity){
+            //either walking if an object has been found but not reached yet, or working if it is day time
+            gameObject.transform.rotation = Quaternion.LookRotation(Vector3.RotateTowards(gameObject.transform.forward, closestObjectForActivity.transform.position - gameObject.transform.position, 20*Time.deltaTime, 0.0f));
+            if(!gameObject.GetComponent<NavMeshAgent>().pathPending && gameObject.GetComponent<NavMeshAgent>().pathStatus == NavMeshPathStatus.PathComplete && gameObject.GetComponent<NavMeshAgent>().remainingDistance == 0){
+                animator.SetBool("isWorking", isDay);
+                doingActivity = true;
+                animator.SetFloat("speed", 0);
+            }else{
+                animator.SetFloat("speed", agent.speed);
+                animator.SetBool("isWorking", false);
+            }
+        }
+    }
+        
 }
